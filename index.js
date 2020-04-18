@@ -3,6 +3,8 @@ const express = require('express');
 const dataBase = require('./data/db');
 const server = express();
 
+const port = process.env.PORT || 3000;
+
 server.use(express.json());
 
 
@@ -82,8 +84,13 @@ server.put('/api/users/:id', (req, res) => {
 server.delete('/api/users/:id', (req, res) => {
     dataBase.remove(req.params.id)
     .then( user => {
-        if(!user) {
-            req.status(404).json({messge: "The user with the specified ID does not exist."})
+        
+        const id = req.params.id
+        dataBase.findById(id)
+        dataBase.remove(id)
+
+        if(!user.name || !user.bio) {
+            req.status(404).json({messge: "The user with the specified ID does not exist."});
         }
     })
     .catch(err => {
@@ -92,6 +99,6 @@ server.delete('/api/users/:id', (req, res) => {
 })
 
 // The server is configured to restart automatically as you make changes.
-server.listen(3000, () => {
-    console.log('Server is up and running on port 3000.')
+server.listen(port, () => {
+    console.log(`Server is up and running on port ${port}.`)
 })
