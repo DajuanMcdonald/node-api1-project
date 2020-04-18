@@ -27,7 +27,7 @@ server.get('/api/users/:id', (req, res) => {
             res.status(200).json(user)
 
         } else {
-            res.status(404).json({message: "user not found."})
+            res.status(404).json({message: "The user with the specified ID does not exist."})
         }
     })
     .catch(err => {
@@ -39,9 +39,12 @@ server.get('/api/users/:id', (req, res) => {
 
 //Creates a user using the information sent inside the `request body`.
 server.post('/api/users', (req, res) => {
-    dataBase.insert(req.params.body)
+    if(!req.body.name || !req.body.bio) {
+        res.status(400).json({errorMessage: "Please provide name and bio for the user."})
+    }
+    dataBase.insert({name: req.body.name, bio: req.body.bio})
     .then( user => {
-        res.status(201).json(user)
+        if(user) res.status(201).json(user)
     })
     .catch(err => {
         res.status(500).json({errorMessage: "The user information could not be modified."})
@@ -50,12 +53,42 @@ server.post('/api/users', (req, res) => {
 
 // Updates the user with the specified `id` using data from the `request body`.
 server.put('/api/users/:id', (req, res) => {
-    dataBase.update(req.params.body)
+    dataBase.update(id, {name, bio})
+    .then( user => {
+        const id = req.params.id;
+        const name = req.body.name;
+        const bio = req.body.bio;
+
+        
+        if(!name) {
+            res.status(400).json({errorMessage: "Please provide name and bio for the user."})
+        }
+        
+        if(!bio) {
+            res.status(400).json({errorMessage: "Please provide name and bio for the user."})
+        }
+        
+        if(user) {
+            res.status(200).json(user)
+        }
+
+    })
+    .catch( err => {
+        res.status(500).json({errorMessage: "The user information could not be modified."})
+    })
 })
 
 //Removes the user with the specified `id`
 server.delete('/api/users/:id', (req, res) => {
     dataBase.remove(req.params.id)
+    .then( user => {
+        if(!user) {
+            req.status(404).json({messge: "The user with the specified ID does not exist."})
+        }
+    })
+    .catch(err => {
+        res.status(500).json({errorMessage: "The user could not be removed."})
+    })
 })
 
 // The server is configured to restart automatically as you make changes.
