@@ -98,6 +98,7 @@ When the client makes a `GET` request to `/api/users/:id`:
 When the client makes a `DELETE` request to `/api/users/:id`:
 
 - If the _user_ with the specified `id` is not found:
+if(!id) {...}
 
   - respond with HTTP status code `404` (Not Found).
   - return the following JSON object: `{ message: "The user with the specified ID does not exist." }`.
